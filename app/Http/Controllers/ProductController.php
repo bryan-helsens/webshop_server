@@ -47,7 +47,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        return Product::find($id);
+        return Product::with('category')->find($id);
     }
 
     public function update(Request $request, $id)
