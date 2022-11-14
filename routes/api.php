@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,8 @@ Route::post("/login", [AuthController::class, "login"]);
 Route::get("/products", [ProductController::class, "index"]);
 Route::get("/products/{id}", [ProductController::class, "show"]);
 Route::get("/products/list/{category}", [ProductController::class, "list"]);
+
+Route::post("/place-order", [CheckoutController::class, "createOrder"]);
 
 
 Route::group(['middleware' => ['role:admin', 'auth:api']], function () {
