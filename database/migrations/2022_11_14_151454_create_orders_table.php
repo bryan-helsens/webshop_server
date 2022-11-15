@@ -16,16 +16,7 @@ class CreateOrdersTable extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_id')->unique();
-            $table->string("firstname");
-            $table->string("lastname");
-            $table->string("phone");
-            $table->string("email");
-            $table->string("street1");
-            $table->string("street2")->nullable();
-            $table->string("city");
-            $table->string("country");
-            $table->string("state");
-            $table->integer("zipcode");
+
             $table->string("payment_id")->nullable();
             $table->string("payment_method")->nullable();
             $table->double("subtotal");

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Address;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
@@ -37,11 +38,14 @@ class CheckoutController extends Controller
                 'data.userInfo.shippingAddress.lastName' => 'required|string',
                 'data.userInfo.shippingAddress.country' => 'required|string',
                 'data.userInfo.shippingAddress.street1' => 'required|string',
+                'data.userInfo.shippingAddress.street2' => 'nullable|string',
                 'data.userInfo.shippingAddress.city' => 'required|string',
                 'data.userInfo.shippingAddress.state' => 'required|string',
                 'data.userInfo.shippingAddress.zipCode' => 'required|string',
                 'data.userInfo.shippingAddress.isSameAddress' => 'required|boolean',
             ]);
+
+            $shippingAddress = $shippingAddress["data"]["userInfo"]["shippingAddress"];
         }
 
         $personalData = $request->validate([
@@ -80,6 +84,13 @@ class CheckoutController extends Controller
 
         $order = Order::Create([
             'order_id' => uniqid('ORD.'),
+            'payment_id' => "COD",
+            'subtotal' => $subtotal,
+            'tax_price' => $tax_price,
+            'total_price' => $total_price,
+        ]);
+
+        $orderBillingAddress[] = [
             'firstname' => $billingAddress['firstName'],
             'lastname' => $billingAddress['lastName'],
             'phone' => $personalData['phoneNumber'],
@@ -90,13 +101,33 @@ class CheckoutController extends Controller
             'country' => $billingAddress['country'],
             'state' => $billingAddress['state'],
             'zipcode' => $billingAddress['zipCode'],
-            'payment_id' => "COD",
-            'subtotal' => $subtotal,
-            'tax_price' => $tax_price,
-            'total_price' => $total_price,
-        ]);
+            'type' => 0,
+        ];
+
+        if (!$isAddressSame) {
+            $orderShippingAddress[] = [
+                'firstname' => $shippingAddress['firstName'],
+                'lastname' => $shippingAddress['lastName'],
+                'phone' => $personalData['phoneNumber'],
+                'email' => $personalData['email'],
+                'street1' => $shippingAddress['street1'],
+                'street2' => $shippingAddress['street2'],
+                'city' => $shippingAddress['city'],
+                'country' => $shippingAddress['country'],
+                'state' => $shippingAddress['state'],
+                'zipcode' => $shippingAddress['zipCode'],
+                'type' => 1,
+            ];
+        }
+
 
         $order->orderItems()->createMany($orderItems);
+
+        $order->orderBillingAddress()->create($orderBillingAddress[0]);
+
+        if (!$isAddressSame) {
+            $order->orderShippingAddress()->create($orderShippingAddress[0]);
+        }
 
         return response()->json([
             'status' => 'success',
