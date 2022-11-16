@@ -18,12 +18,14 @@ class UserController extends Controller
         return User::all();
     }
 
+
+
     public function update(Request $request)
     {
         $request->validate([
-            'firstName' => 'min:4|string|max:255',
-            'lastName' => 'min:4|string|max:255',
-            'phone' => 'min:4|string|max:255',
+            'firstName' => 'min:3|string|max:255',
+            'lastName' => 'min:3|string|max:255',
+            'phone' => 'string|max:255',
         ]);
 
         $user = Auth::user();

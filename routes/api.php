@@ -25,7 +25,7 @@ use App\Http\Controllers\UserController;
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
 
-Route::put("/test", [UserController::class, "update"]);
+Route::put("/edit-user", [UserController::class, "update"]);
 
 Route::get("/products", [ProductController::class, "index"]);
 Route::get("/products/{id}", [ProductController::class, "show"]);
