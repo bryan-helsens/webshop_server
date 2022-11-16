@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrderproductsTable extends Migration
+class CreateTypeaddressTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,9 @@ class CreateOrderproductsTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_products', function (Blueprint $table) {
+        Schema::create('type_address', function (Blueprint $table) {
             $table->id();
-            $table->string('order_id');
-            $table->integer('product_id');
-            $table->integer('qty');
-            $table->double('price');
-            $table->double('total_price');
+            $table->string('type')->default('shipping_address'); // 0 = shipping address, 1 = billing address
             $table->timestamps();
         });
     }
@@ -31,6 +27,6 @@ class CreateOrderproductsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_products');
+        Schema::dropIfExists('type_address');
     }
 }

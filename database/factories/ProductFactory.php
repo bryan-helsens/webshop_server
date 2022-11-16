@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -27,7 +28,7 @@ class ProductFactory extends Factory
             'stock_status' => 'in_stock',
             'quantity' => $this->faker->numberBetween(100, 200),
             'image' => $this->faker->unique()->numberBetween(1, 20) . '.jpeg',
-            'category_id' => $this->faker->numberBetween(1, 5),
+            'category_id' => Category::inRandomOrder()->take(1)->first()->id,
         ];
     }
 }

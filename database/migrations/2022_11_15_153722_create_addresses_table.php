@@ -15,18 +15,16 @@ class CreateAddressesTable extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->string('order_id');
-            $table->string("firstname");
-            $table->string("lastname");
-            $table->string("phone");
-            $table->string("email");
             $table->string("street1");
             $table->string("street2")->nullable();
             $table->string("city");
             $table->string("country");
             $table->string("state");
             $table->integer("zipcode");
-            $table->integer("type")->default('0'); // 0 = shipping address, 1 = billing address
+
+            $table->unsignedBigInteger('type_id');
+            //$table->integer("type")->default('0'); // 0 = shipping address, 1 = billing address
+            $table->foreign('type_id')->references('id')->on('type_address')->onDelete('cascade');
             $table->timestamps();
         });
     }

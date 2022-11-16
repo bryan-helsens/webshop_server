@@ -16,6 +16,15 @@ class CreateOrdersTable extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_id')->unique();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->unsignedBigInteger('shipping_address');
+            $table->foreign('shipping_address')->references('id')->on('addresses')->onDelete('cascade');
+            $table->unsignedBigInteger('billing_address');
+            $table->foreign('billing_address')->references('id')->on('addresses')->onDelete('cascade');
+
+            $table->string("order_date");
 
             $table->string("payment_id")->nullable();
             $table->string("payment_method")->nullable();
@@ -30,7 +39,7 @@ class CreateOrdersTable extends Migration
             $table->boolean("is_delivered")->default(false);
             $table->date("delivered_at")->nullable();
 
-            $table->tinyInteger('status')->default("0"); // 0 = pending, 1 = completed, 2 = cancelled
+            $table->tinyInteger('order_status')->default("0"); // 0 = pending, 1 = completed, 2 = cancelled
 
             $table->timestamps();
         });

@@ -13,12 +13,11 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $products_query = Product::with('category');
+        $products_query = Product::with("category");
         $category_slug = $request->category_slug;
         $search = $request->search;
 
-
-        if ($search !== '' && $category_slug !== '' && $category_slug !== "all") {
+        if ($search !== null && $category_slug !== null && $category_slug !== "all") {
             $category = Category::where('slug', $category_slug)->first();
             $category_id = $category->id;
             $products_query->where('category_id', $category_id)->where('name', 'like', '%' . $search . '%')->get();
@@ -26,7 +25,7 @@ class ProductController extends Controller
             $category = Category::where('slug', $category_slug)->first();
             $category_id = $category->id;
             $products_query->where('category_id', $category_id);
-        } else if ($search !== '') {
+        } else if ($search !== null) {
             $products_query->where('name', 'like', '%' . $search . '%')->get();
         }
 

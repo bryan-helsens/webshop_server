@@ -27,10 +27,11 @@ class CreateProductsTable extends Migration
             $table->unsignedBigInteger('quantity')->default(10);
             $table->string("image")->nullable();
             $table->text('images')->nullable();
-            $table->bigInteger('category_id')->unsigned();
-            $table->timestamps();
 
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->unsignedBigInteger('category_id');
+            $table->foreign('category_id')->references('id')->on('categories');
+
+            $table->timestamps();
         });
     }
 
