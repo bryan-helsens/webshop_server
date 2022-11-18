@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -25,7 +26,13 @@ use App\Http\Controllers\UserController;
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
 
-Route::put("/edit-user", [UserController::class, "update"]);
+
+Route::get("/addresses", [AddressController::class, "all"]);
+Route::get("/address/{id}", [AddressController::class, "getByID"]);
+Route::put("/edit-address/{id}", [AddressController::class, "update"]);
+Route::post("/add-address", [AddressController::class, "add"]);
+Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);
+
 
 Route::get("/products", [ProductController::class, "index"]);
 Route::get("/products/{id}", [ProductController::class, "show"]);

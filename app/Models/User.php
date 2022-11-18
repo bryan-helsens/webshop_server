@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Spatie\Permission\PermissionRegistrar;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements JWTSubject
@@ -38,7 +35,9 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
-        'roles'
+        'roles',
+        'updated_at',
+        'created_at',
     ];
 
     /**
@@ -58,5 +57,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function addresses()
+    {
+        return $this->belongstoMany(Address::class)->withPivot('shipping_address', 'billing_address');
     }
 }
