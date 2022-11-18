@@ -33,6 +33,6 @@ class Address extends Model
 
     public function user()
     {
-        return $this->belongsToMany(User::class)->withPivot('shipping_address', 'billing_address');
+        return $this->belongsToMany(User::class)->withPivot('id', 'shipping_address', 'billing_address');
     }
 }

@@ -61,6 +61,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function addresses()
     {
-        return $this->belongstoMany(Address::class)->withPivot('shipping_address', 'billing_address');
+        return $this->belongstoMany(Address::class)->withPivot('id', 'shipping_address', 'billing_address');
     }
 }

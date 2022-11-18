@@ -152,4 +152,57 @@ class AddressController extends Controller
             ]);
         }
     }
+
+    public function getShippingOrBilling($type)
+    {
+        try {
+            $user = User::find(Auth::id());
+            $shippingAddress = $user->addresses()->where($type, true)->first();
+
+            if ($shippingAddress === null) {
+                return false;
+            }
+
+            return $shippingAddress;
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Can't find this type of address",
+            ]);
+        }
+    }
+
+    public function setShippingOrBilling($type, $id)
+    {
+        try {
+            $user = User::find(Auth::id());
+
+            $check = $user->addresses()->where('addresses.id', $id)->exists();
+            $previousAddress = $this->getShippingOrBilling($type);
+
+            if ($previousAddress) {
+                $previousAddress->pivot->update([$type => false]);
+            }
+
+            if ($check) {
+                $address = Address::find($id);
+                $user->addresses()->where('addresses.id', $id)->updateExistingPivot($address->id, [$type => true]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Successfully changed your ' . str_replace('_', ' ', $type),
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No address has been found',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Can't find this type of address",
+            ]);
+        }
+    }
 }

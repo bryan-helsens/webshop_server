@@ -27,11 +27,15 @@ Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
 
 
+Route::get('/address/{type}', [AddressController::class, "getShippingOrBilling"]);
+Route::put('/address/{type}/{id}', [AddressController::class, "setShippingOrBilling"]);
+
 Route::get("/addresses", [AddressController::class, "all"]);
 Route::get("/address/{id}", [AddressController::class, "getByID"]);
 Route::put("/edit-address/{id}", [AddressController::class, "update"]);
 Route::post("/add-address", [AddressController::class, "add"]);
-Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);
+Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);;
+
 
 
 Route::get("/products", [ProductController::class, "index"]);
