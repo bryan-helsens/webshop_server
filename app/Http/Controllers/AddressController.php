@@ -87,6 +87,17 @@ class AddressController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $request->validate([
+                'title' => 'min:2|string|max:5|required',
+                'firstName' => 'min:3|string|max:255|required',
+                'lastName' => 'min:3|string|max:255|required',
+                'street' => 'min:3|string|max:255|required',
+                'number' => 'int|required',
+                'city' => 'min:3|string|max:255|required',
+                'country' => 'min:3|string|max:255|required',
+                'zipcode' => 'int|required',
+            ]);
+
             $user = User::find(Auth::id());
 
             $check = $user->addresses()->where('addresses.id', $id)->exists();
