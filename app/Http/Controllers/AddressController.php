@@ -11,7 +11,7 @@ class AddressController extends Controller
 {
     public function __construct()
     {
-        //$this->middleware('jwtauth');
+        $this->middleware('jwtauth');
     }
 
     public function all()
@@ -51,31 +51,40 @@ class AddressController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'title' => 'min:2|string|max:5|required',
-            'firstName' => 'min:3|string|max:255|required',
-            'lastName' => 'min:3|string|max:255|required',
-            'street' => 'min:3|string|max:255|required',
-            'number' => 'int|required',
-            'city' => 'min:3|string|max:255|required',
-            'country' => 'min:3|string|max:255|required',
-            'zipcode' => 'int|required',
+            'address.title' => 'min:2|string|max:5|required',
+            'address.firstName' => 'min:3|string|max:255|required',
+            'address.lastName' => 'min:3|string|max:255|required',
+            'address.street' => 'min:3|string|max:255|required',
+            'address.number' => 'int|required',
+            'address.city' => 'min:3|string|max:255|required',
+            'address.country' => 'min:3|string|max:255|required',
+            'address.zipCode' => 'int|required',
         ]);
 
         $address = [
-            "title" => $request->title,
-            "firstName" => $request->firstName,
-            "lastName" => $request->lastName,
-            "street" => $request->street,
-            "number" => $request->number,
-            "city" => $request->city,
-            "country" => $request->country,
-            "zipcode" => $request->zipcode,
+            "title" => $request->address["title"],
+            "firstName" => $request->address["firstName"],
+            "lastName" => $request->address["lastName"],
+            "street" => $request->address["street"],
+            "number" => $request->address["number"],
+            "city" => $request->address["city"],
+            "country" => $request->address["country"],
+            "zipcode" => $request->address["zipCode"],
         ];
 
-        $address = Address::create($address);
+        try {
+            $address = Address::create($address);
 
-        $user = User::find(Auth::id());
-        $user->addresses()->attach($address->id);
+            $user = User::find(Auth::id());
+
+            $user->addresses()->attach($address->id);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Can't find this type of address",
+            ]);
+        }
+
 
         return response()->json([
             'status' => 'success',
@@ -112,7 +121,7 @@ class AddressController extends Controller
                     "number" => $request->number,
                     "city" => $request->city,
                     "country" => $request->country,
-                    "zipcode" => $request->zipcode,
+                    "zipcode" => $request->zipCode,
                 ];
 
                 $address->update($addressData);

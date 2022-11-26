@@ -28,14 +28,6 @@ Route::post("/login", [AuthController::class, "login"]);
 
 
 
-Route::get("/addresses", [AddressController::class, "all"]);
-Route::get("/address/{id}", [AddressController::class, "getByID"]);
-Route::put("/edit-address/{id}", [AddressController::class, "update"]);
-Route::post("/add-address", [AddressController::class, "add"]);
-Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);;
-Route::get('/address/{type}', [AddressController::class, "getShippingOrBilling"]);
-Route::put('/address/{type}/{id}', [AddressController::class, "setShippingOrBilling"]);
-
 
 Route::get("/products", [ProductController::class, "index"]);
 Route::get("/products/{id}", [ProductController::class, "show"]);
@@ -52,6 +44,15 @@ Route::group(['middleware' => ['role:admin', 'auth:api']], function () {
 Route::group(['middleware' => ['role:costumer', 'auth:api']], function () {
     Route::get("/me", [AuthController::class, "me"])->name('me');
     Route::put("/update", [UserController::class, "update"])->name('update');
+
+
+    Route::get("/addresses", [AddressController::class, "all"]);
+    Route::get("/address/{id}", [AddressController::class, "getByID"]);
+    Route::put("/edit-address/{id}", [AddressController::class, "update"]);
+    Route::post("/add-address", [AddressController::class, "add"]);
+    Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);;
+    Route::get('/address/{type}', [AddressController::class, "getShippingOrBilling"]);
+    Route::put('/address/{type}/{id}', [AddressController::class, "setShippingOrBilling"]);
 });
 
 
