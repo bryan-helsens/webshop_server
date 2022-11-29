@@ -60,7 +60,6 @@ Route::group(['middleware' => ['role:costumer', 'auth:api']], function () {
 // Protected Routes
 Route::middleware('jwtauth')->group(function () {
     Route::get("logout", [AuthController::class, "logout"])->name('logout');
-    //Route::get("/me", [AuthController::class, "me"])->name('me');
 
     Route::get("/refresh", [AuthController::class, "refresh"])->name('refresh');
     Route::post('/checkToken', [AuthController::class, "checkToken"])->name('checkToken');

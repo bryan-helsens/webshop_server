@@ -51,7 +51,7 @@ class AddressController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'address.title' => 'min:2|string|max:5|required',
+            'address.title' => 'nullable',
             'address.firstName' => 'min:3|string|max:255|required',
             'address.lastName' => 'min:3|string|max:255|required',
             'address.street' => 'min:3|string|max:255|required',
@@ -59,6 +59,8 @@ class AddressController extends Controller
             'address.city' => 'min:3|string|max:255|required',
             'address.country' => 'min:3|string|max:255|required',
             'address.zipCode' => 'int|required',
+            'address.billing_address' => 'boolean',
+            'address.shipping_address' => 'boolean',
         ]);
 
         $address = [
@@ -78,13 +80,20 @@ class AddressController extends Controller
             $user = User::find(Auth::id());
 
             $user->addresses()->attach($address->id);
+
+            if ($request->address["billing_address"]) {
+                $this->setShippingOrBilling("billing_address", $address->id);
+            }
+
+            if ($request->address["shipping_address"]) {
+                $this->setShippingOrBilling("shipping_address", $address->id);
+            }
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
                 'message' => "Can't find this type of address",
             ]);
         }
-
 
         return response()->json([
             'status' => 'success',
@@ -97,7 +106,7 @@ class AddressController extends Controller
     {
         try {
             $request->validate([
-                'title' => 'min:2|string|max:5|required',
+                'title' => 'nullable',
                 'firstName' => 'min:3|string|max:255|required',
                 'lastName' => 'min:3|string|max:255|required',
                 'street' => 'min:3|string|max:255|required',
