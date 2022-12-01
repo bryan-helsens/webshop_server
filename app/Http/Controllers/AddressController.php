@@ -33,19 +33,48 @@ class AddressController extends Controller
 
     public function getByID($id)
     {
-        $addresses = Address::find($id);
+        try {
+            $user = User::find(Auth::id());
 
-        if (!$addresses) {
+            $check = $user->addresses()->where('addresses.id', $id)->exists();
+            if ($check) {
+                $address = $user->addresses->find($id);
+
+                $address = $this->removePivot($address);
+                return response()->json([
+                    'status' => 'success',
+                    'addresses' => $address,
+                ]);
+            }
+
             return response()->json([
                 'status' => 'failed',
                 'message' => "No addresses found!",
             ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ]);
         }
+    }
 
-        return response()->json([
-            'status' => 'success',
-            'addresses' => $addresses,
-        ]);
+    public function removePivot($address)
+    {
+        $address = [
+            "title" => $address["title"],
+            "firstName" => $address["firstName"],
+            "lastName" => $address["lastName"],
+            "street" => $address["street"],
+            "number" => $address["number"],
+            "city" => $address["city"],
+            "country" => $address["country"],
+            "zipcode" => $address["zipcode"],
+            "billing_address" => $address->pivot["billing_address"],
+            "shipping_address" => $address->pivot["shipping_address"],
+        ];
+
+        return $address;
     }
 
     public function add(Request $request)
@@ -58,7 +87,7 @@ class AddressController extends Controller
             'address.number' => 'int|required',
             'address.city' => 'min:3|string|max:255|required',
             'address.country' => 'min:3|string|max:255|required',
-            'address.zipCode' => 'int|required',
+            'address.zipcode' => 'int|required',
             'address.billing_address' => 'boolean',
             'address.shipping_address' => 'boolean',
         ]);
@@ -71,7 +100,7 @@ class AddressController extends Controller
             "number" => $request->address["number"],
             "city" => $request->address["city"],
             "country" => $request->address["country"],
-            "zipcode" => $request->address["zipCode"],
+            "zipcode" => $request->address["zipcode"],
         ];
 
         try {
@@ -82,11 +111,11 @@ class AddressController extends Controller
             $user->addresses()->attach($address->id);
 
             if ($request->address["billing_address"]) {
-                $this->setShippingOrBilling("billing_address", $address->id);
+                $this->setShippingOrBilling("billing_address", $address->id, $request->address["billing_address"]);
             }
 
             if ($request->address["shipping_address"]) {
-                $this->setShippingOrBilling("shipping_address", $address->id);
+                $this->setShippingOrBilling("shipping_address", $address->id, $request->address["shipping_address"]);
             }
         } catch (\Throwable $th) {
             return response()->json([
@@ -106,34 +135,41 @@ class AddressController extends Controller
     {
         try {
             $request->validate([
-                'title' => 'nullable',
-                'firstName' => 'min:3|string|max:255|required',
-                'lastName' => 'min:3|string|max:255|required',
-                'street' => 'min:3|string|max:255|required',
-                'number' => 'int|required',
-                'city' => 'min:3|string|max:255|required',
-                'country' => 'min:3|string|max:255|required',
-                'zipcode' => 'int|required',
+                'address.title' => 'nullable',
+                'address.firstName' => 'min:3|string|max:255|required',
+                'address.lastName' => 'min:3|string|max:255|required',
+                'address.street' => 'min:3|string|max:255|required',
+                'address.number' => 'int|required',
+                'address.city' => 'min:3|string|max:255|required',
+                'address.country' => 'min:3|string|max:255|required',
+                'address.zipcode' => 'int|required',
+                'address.billing_address' => 'boolean',
+                'address.shipping_address' => 'boolean',
             ]);
 
             $user = User::find(Auth::id());
 
             $check = $user->addresses()->where('addresses.id', $id)->exists();
+
             if ($check) {
                 $address = Address::find($id);
 
                 $addressData = [
-                    "title" => $request->title,
-                    "firstName" => $request->firstName,
-                    "lastName" => $request->lastName,
-                    "street" => $request->street,
-                    "number" => $request->number,
-                    "city" => $request->city,
-                    "country" => $request->country,
-                    "zipcode" => $request->zipCode,
+                    "title" => $request->address["title"],
+                    "firstName" => $request->address["firstName"],
+                    "lastName" => $request->address["lastName"],
+                    "street" => $request->address["street"],
+                    "number" => $request->address["number"],
+                    "city" => $request->address["city"],
+                    "country" => $request->address["country"],
+                    "zipcode" => $request->address["zipcode"],
                 ];
 
                 $address->update($addressData);
+
+                $this->setShippingOrBilling("shipping_address", $address->id, $request->address["shipping_address"]);
+                $this->setShippingOrBilling("billing_address", $address->id, $request->address["billing_address"]);
+
 
                 return response()->json([
                     'status' => 'success',
@@ -201,7 +237,7 @@ class AddressController extends Controller
         }
     }
 
-    public function setShippingOrBilling($type, $id)
+    public function setShippingOrBilling($type, $id, $value)
     {
         try {
             $user = User::find(Auth::id());
@@ -209,13 +245,13 @@ class AddressController extends Controller
             $check = $user->addresses()->where('addresses.id', $id)->exists();
             $previousAddress = $this->getShippingOrBilling($type);
 
-            if ($previousAddress) {
+            if ($previousAddress && $value === true) {
                 $previousAddress->pivot->update([$type => false]);
             }
 
             if ($check) {
                 $address = Address::find($id);
-                $user->addresses()->where('addresses.id', $id)->updateExistingPivot($address->id, [$type => true]);
+                $user->addresses()->where('addresses.id', $id)->updateExistingPivot($address->id, [$type => $value]);
 
                 return response()->json([
                     'status' => 'success',
