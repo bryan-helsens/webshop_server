@@ -41,10 +41,10 @@ Route::group(['middleware' => ['role:admin', 'auth:api']], function () {
 });
 
 
-Route::group(['middleware' => ['role:costumer', 'auth:api']], function () {
-    Route::get("/me", [AuthController::class, "me"])->name('me');
-    Route::put("/update", [UserController::class, "update"])->name('update');
+Route::group(['middleware' => ['jwtauth', 'role:costumer']], function () {
 
+    Route::put("/update", [UserController::class, "update"])->name('update');
+    Route::get("/me", [AuthController::class, "me"])->name('me');
 
     Route::get("/addresses", [AddressController::class, "all"]);
     Route::get("/address/{id}", [AddressController::class, "getByID"]);
@@ -52,14 +52,14 @@ Route::group(['middleware' => ['role:costumer', 'auth:api']], function () {
     Route::post("/add-address", [AddressController::class, "add"]);
     Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);;
     Route::get('/address/{type}', [AddressController::class, "getShippingOrBilling"]);
-    Route::put('/address/{type}/{id}', [AddressController::class, "setShippingOrBilling"]);
+    Route::put('/address/{type}/{id}', [AddressController::class, "switchShippingOrBilling"]);
 });
-
 
 
 // Protected Routes
 Route::middleware('jwtauth')->group(function () {
     Route::get("logout", [AuthController::class, "logout"])->name('logout');
+
 
     Route::get("/refresh", [AuthController::class, "refresh"])->name('refresh');
     Route::post('/checkToken', [AuthController::class, "checkToken"])->name('checkToken');

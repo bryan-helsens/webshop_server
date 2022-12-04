@@ -64,7 +64,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully logged out',
-        ])->withCookie(cookie("jwt", $cookie, auth()->factory()->getTTL() * 60));
+        ])->withCookie(cookie("jwt", $cookie, auth()->factory()->getTTL()));
     }
 
     public function refresh(Request $request)
@@ -76,7 +76,7 @@ class AuthController extends Controller
             'status' => 'success',
             'user' => Auth::user(),
             'access_token' => $token
-        ])->withCookie(cookie("jwt", $token, auth()->factory()->getTTL() * 60));
+        ])->withCookie(cookie("jwt", $token, auth()->factory()->getTTL()));
     }
 
     public function me()
@@ -96,7 +96,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'user' => auth()->user(),
             'roles' => auth()->user()->roles->pluck('name'),
-        ])->withCookie(cookie("jwt", $token, auth()->factory()->getTTL() * 60));
+        ])->withCookie(cookie("jwt", $token, auth()->factory()->getTTL()));
     }
 
     public function checkToken()

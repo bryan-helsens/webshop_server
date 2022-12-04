@@ -170,7 +170,6 @@ class AddressController extends Controller
                 $this->setShippingOrBilling("shipping_address", $address->id, $request->address["shipping_address"]);
                 $this->setShippingOrBilling("billing_address", $address->id, $request->address["billing_address"]);
 
-
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Successfully updated your address',
@@ -235,6 +234,11 @@ class AddressController extends Controller
                 'message' => "Can't find this type of address",
             ]);
         }
+    }
+
+    public function switchShippingOrBilling($type, $id)
+    {
+        $this->setShippingOrBilling($type, $id, true);
     }
 
     public function setShippingOrBilling($type, $id, $value)
