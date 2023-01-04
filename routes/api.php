@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\StripeController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -25,7 +26,6 @@ use App\Http\Controllers\UserController;
 // Public Routes
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
-
 
 
 
@@ -53,6 +53,8 @@ Route::group(['middleware' => ['jwtauth', 'role:costumer']], function () {
     Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);;
     Route::get('/address/{type}', [AddressController::class, "getShippingOrBilling"]);
     Route::put('/address/{type}/{id}', [AddressController::class, "switchShippingOrBilling"]);
+
+    Route::post('/cart/checkout', [StripeController::class, "checkout"])->name("checkout");
 });
 
 

@@ -6,6 +6,8 @@ use App\Models\Address;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
@@ -13,7 +15,7 @@ class CheckoutController extends Controller
 
     public function __construct()
     {
-        //$this->middleware('jwtauth');
+        $this->middleware('jwtauth');
     }
 
 
@@ -84,6 +86,7 @@ class CheckoutController extends Controller
 
         $order = Order::Create([
             'order_id' => uniqid('ORD.'),
+            'user_id' => Auth::id(),
             'payment_id' => "COD",
             'subtotal' => $subtotal,
             'tax_price' => $tax_price,
@@ -128,6 +131,7 @@ class CheckoutController extends Controller
         if (!$isAddressSame) {
             $order->orderShippingAddress()->create($orderShippingAddress[0]);
         }
+
 
         return response()->json([
             'status' => 'success',
