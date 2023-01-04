@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,18 +18,14 @@ class AuthController extends Controller
         $this->middleware('jwtauth', ['except' => ['login', 'register']]);
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $fields = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|confirmed'
-        ]);
+        $data = $request->validated();
 
         User::create([
-            'name' => $fields["name"],
-            'email' => $fields["email"],
-            'password' => bcrypt($fields["password"])
+            'name' => $data["name"],
+            'email' => $data["email"],
+            'password' => bcrypt($data["password"])
         ]);
 
         return response()->json([
@@ -36,12 +34,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string'
-        ]);
+        $data = $request->validated();
 
         $credentials = $request->only('email', 'password');
         if (!$token = JWTAuth::attempt($credentials)) {
@@ -57,7 +52,6 @@ class AuthController extends Controller
 
     public function logout()
     {
-
         Auth::logout();
         $cookie = Cookie::forget('jwt');
 
@@ -67,9 +61,8 @@ class AuthController extends Controller
         ])->withCookie(cookie("jwt", $cookie, auth()->factory()->getTTL()));
     }
 
-    public function refresh(Request $request)
+    /*     public function refresh(Request $request)
     {
-
         $token = Auth::refresh();
 
         return response()->json([
@@ -77,7 +70,7 @@ class AuthController extends Controller
             'user' => Auth::user(),
             'access_token' => $token
         ])->withCookie(cookie("jwt", $token, auth()->factory()->getTTL()));
-    }
+    } */
 
     public function me()
     {
@@ -85,7 +78,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'user' => $user,
+            'user' => new UserResource($user),
         ]);
     }
 
@@ -94,7 +87,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'access_token' => $token,
-            'user' => auth()->user(),
+            'user' => new UserResource(auth()->user()),
             'roles' => auth()->user()->roles->pluck('name'),
         ])->withCookie(cookie("jwt", $token, auth()->factory()->getTTL()));
     }
