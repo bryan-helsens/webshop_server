@@ -26,18 +26,17 @@ use App\Http\Controllers\UserController;
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
 
-
-
-
-Route::get("/products", [ProductController::class, "index"]);
+/* Route::get("/products", [ProductController::class, "index"]);
 Route::get("/products/{id}", [ProductController::class, "show"]);
-Route::get("/products/list/{category}", [ProductController::class, "list"]);
+Route::get("/products/list/{category}", [ProductController::class, "list"]); */
 
 Route::post("/place-order", [CheckoutController::class, "createOrder"]);
 
 
 Route::group(['middleware' => ['role:admin', 'auth:api']], function () {
     Route::get('/user', [AdminController::class, "index"]);
+
+    Route::apiResource('products', ProductController::class);
 });
 
 
@@ -63,8 +62,11 @@ Route::middleware('jwtauth')->group(function () {
 
     Route::get("/refresh", [AuthController::class, "refresh"])->name('refresh');
     Route::post('/checkToken', [AuthController::class, "checkToken"])->name('checkToken');
+});
 
-    Route::post("/products", [ProductController::class, "store"]);
-    Route::put("/products/{id}", [ProductController::class, "update"]);
-    Route::delete("/products/{id}", [ProductController::class, "destroy"]);
+
+
+Route::middleware(["guestOrVerified"])->group(function () {
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/product/{product:id}', [ProductController::class, 'show']);
 });
