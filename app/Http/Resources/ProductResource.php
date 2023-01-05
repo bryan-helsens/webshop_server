@@ -26,6 +26,7 @@ class ProductResource extends JsonResource
             'quantity' => $this->quantity,
             'status' => $this->stock_status,
             'published' => (bool)$this->published,
+            'category' => $this->category->slug,
             'created_at' => (new DateTime($this->created_at))->format('Y-m-d H:i:s'),
             'updated_at' => (new DateTime($this->updated_at))->format('Y-m-d H:i:s'),
         ];
