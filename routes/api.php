@@ -20,11 +20,12 @@ use App\Http\Controllers\UserController;
 |
 */
 
-//Route::Resource('products', ProductController::class);
 
 // Public Routes
 Route::post("/register", [AuthController::class, "register"]);
 Route::post("/login", [AuthController::class, "login"]);
+
+
 
 Route::post("/place-order", [CheckoutController::class, "createOrder"]);
 
@@ -58,8 +59,6 @@ Route::middleware('jwtauth')->group(function () {
     Route::get("/refresh", [AuthController::class, "refresh"])->name('refresh');
     Route::post('/checkToken', [AuthController::class, "checkToken"])->name('checkToken');
 });
-
-
 
 Route::middleware(["guestOrVerified"])->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
