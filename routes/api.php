@@ -22,9 +22,15 @@ use App\Http\Controllers\UserController;
 
 
 // Public Routes
-Route::post("/register", [AuthController::class, "register"]);
-Route::post("/login", [AuthController::class, "login"]);
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+], function ($router) {
 
+    Route::post("/register", [AuthController::class, "register"]);
+});
+
+Route::post("/login", [AuthController::class, "login"]);
 
 
 Route::post("/place-order", [CheckoutController::class, "createOrder"]);
