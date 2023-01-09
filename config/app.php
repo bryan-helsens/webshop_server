@@ -179,7 +179,7 @@ return [
 
         // ZELF TOEGEVOEGD
         Spatie\Permission\PermissionServiceProvider::class,
-
+        Hisman\MakeClass\MakeClassServiceProvider::class,
     ],
 
     /*

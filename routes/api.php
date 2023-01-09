@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +24,9 @@ use App\Http\Controllers\UserController;
 
 // Public Routes
 Route::post("/register", [AuthController::class, "register"]);
-Route::post("/login", [AuthController::class, "login"]);
+
+
+Route::post('/cart', [CartController::class, 'index'])->name('index');
 
 
 
@@ -54,6 +57,12 @@ Route::group(['middleware' => ['jwtauth', 'role:costumer']], function () {
 // Protected Routes
 Route::middleware('jwtauth')->group(function () {
     Route::get("logout", [AuthController::class, "logout"])->name('logout');
+    Route::post("/login", [AuthController::class, "login"]);
+
+    Route::prefix('/cart')->group(function () {
+        Route::post('/add/{product:id}', [CartController::class, 'add'])->name('add');
+        Route::post('/remove/{product:id}', [CartController::class, 'remove'])->name('remove');
+    });
 
 
     Route::get("/refresh", [AuthController::class, "refresh"])->name('refresh');
