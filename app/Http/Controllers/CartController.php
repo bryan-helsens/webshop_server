@@ -9,10 +9,15 @@ use App\Models\Product;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class CartController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('jwtauth');
+    }
+
     public function index(Request $request)
     {
         $cartItems = Cart::getCartItems($request->user);
@@ -35,6 +40,7 @@ class CartController extends Controller
 
         return response()->json([
             'status' => 'success',
+            'empty' => false,
             'cartItems' => $cartItems,
             'products' => $products,
             'total' => $total
@@ -45,13 +51,10 @@ class CartController extends Controller
     public function add(Request $request, Product $product)
     {
         $quantity = $request->get('quantity', 1);
-        $user = Auth::user();
-
-        dd($user);
+        $user = $request->user;
 
         if ($user) {
             $cartItem = CartItem::where(['user_id' => $user["id"], 'product_id' => $product->id])->first();
-
             if ($cartItem) {
                 $cartItem->quantity = $quantity;
                 $cartItem->update();
@@ -69,34 +72,12 @@ class CartController extends Controller
                 'status' => 'success',
                 'count' => Cart::getCartItemsCount(),
             ]);
-        } else {
-            $cartItems = Cart::getCookieCartItems();
-            $productFound = false;
-
-            foreach ($cartItems as &$item) {
-                if ($item["quantity"] === $product->id) {
-                    $item['quantity'] = $quantity;
-                    $productFound = true;
-                    break;
-                }
-            }
-
-            if (!$productFound) {
-                $cartItems[] = [
-                    "user_id" => null,
-                    "product_id" => $product->id,
-                    'quantity' => $quantity,
-                    'price' => $product->price,
-                ];
-            }
-
-            //Cookie::queue('cart_items', json_decode($cartItems), 60 * 24 * 30);
-
-            return response()->json([
-                'status' => 'success',
-                'count' => Cart::getCountFromItems($cartItems),
-            ]);
         }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Something went wrong!',
+        ], Response::HTTP_NOT_FOUND);
     }
 
 
@@ -115,21 +96,25 @@ class CartController extends Controller
                 'status' => 'success',
                 'count' => Cart::getCartItemsCount(),
             ]);
-        } else {
-            $cartItems = Cart::getCookieCartItems();
+        }
 
-            foreach ($cartItems as $key => &$item) {
-                if ($item['product_id'] === $product->id) {
-                    array_splice($cartItems, $key, 1);
-                    break;
-                }
-            }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Something went wrong!',
+        ], Response::HTTP_NOT_FOUND);
+    }
 
-            Cookie::queue('cart_items', json_decode($cartItems), 60 * 24 * 30);
+    public function updateQuantity(Request $request, Product $product)
+    {
+        $quantity = $request->get('quantity', 1);
+        $user = $request->user;
+
+        if ($user && $quantity > 0 && $quantity <= $product->quantity) {
+            CartItem::where(['user_id' => $user["id"], 'product_id' => $product->id])->update(['quantity' => $quantity]);
 
             return response()->json([
                 'status' => 'success',
-                'count' => Cart::getCountFromItems($cartItems),
+                'count' => Cart::getCartItemsCount(),
             ]);
         }
     }

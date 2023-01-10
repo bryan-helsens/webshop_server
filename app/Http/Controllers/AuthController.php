@@ -100,15 +100,9 @@ class AuthController extends Controller
     private function getCookie($token)
     {
         return cookie(
-            "JWT",
+            "jwt",
             $token,
-            auth()->factory()->getTTL(),
-            null,
-            null,
-            env('APP_DEBUG') ? false : true,
-            true,
-            false,
-            'Strict'
+            auth()->factory()->getTTL()
         );
     }
 

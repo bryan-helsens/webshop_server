@@ -24,9 +24,9 @@ use App\Http\Controllers\CartController;
 
 // Public Routes
 Route::post("/register", [AuthController::class, "register"]);
+Route::post("/login", [AuthController::class, "login"]);
 
 
-Route::post('/cart', [CartController::class, 'index'])->name('index');
 
 
 
@@ -51,18 +51,20 @@ Route::group(['middleware' => ['jwtauth', 'role:costumer']], function () {
     Route::delete("/delete-address/{id}", [AddressController::class, "destroy"]);;
     Route::get('/address/{type}', [AddressController::class, "getShippingOrBilling"]);
     Route::put('/address/{type}/{id}', [AddressController::class, "switchShippingOrBilling"]);
+
+    Route::post('/cart', [CartController::class, 'index'])->name('index');
+
+    Route::prefix('/cart')->group(function () {
+        Route::post('/add/{product:id}', [CartController::class, 'add']);
+        Route::post('/remove/{product:id}', [CartController::class, 'remove']);
+        Route::post('/update-quantity/{product:id}', [CartController::class, 'updateQuantity']);
+    });
 });
 
 
 // Protected Routes
 Route::middleware('jwtauth')->group(function () {
     Route::get("logout", [AuthController::class, "logout"])->name('logout');
-    Route::post("/login", [AuthController::class, "login"]);
-
-    Route::prefix('/cart')->group(function () {
-        Route::post('/add/{product:id}', [CartController::class, 'add'])->name('add');
-        Route::post('/remove/{product:id}', [CartController::class, 'remove'])->name('remove');
-    });
 
 
     Route::get("/refresh", [AuthController::class, "refresh"])->name('refresh');
