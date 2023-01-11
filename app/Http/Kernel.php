@@ -66,10 +66,10 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
 
+        'guestOrVerified' => GuestOrVerified::class,
         'jwtauth' => \App\Http\Middleware\JWTAuthentication::class,
         'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
-        'guestOrVerified' => GuestOrVerified::class,
     ];
 }

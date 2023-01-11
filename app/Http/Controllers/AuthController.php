@@ -6,10 +6,11 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Cookie;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Helper\Cart;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -22,7 +23,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        User::create([
+        $user = User::create([
             'name' => $data["name"],
             'email' => $data["email"],
             'password' => bcrypt($data["password"])
@@ -84,12 +85,23 @@ class AuthController extends Controller
 
     protected function respondWithToken($token)
     {
+        $cookie = $this->getCookie($token);
+
         return response()->json([
             'status' => 'success',
             'access_token' => $token,
             'user' => new UserResource(auth()->user()),
             'roles' => auth()->user()->roles->pluck('name'),
-        ])->withCookie(cookie("jwt", $token, auth()->factory()->getTTL()));
+        ])->withCookie($cookie);
+    }
+
+    private function getCookie($token)
+    {
+        return cookie(
+            "jwt",
+            $token,
+            auth()->factory()->getTTL()
+        );
     }
 
     public function checkToken()
