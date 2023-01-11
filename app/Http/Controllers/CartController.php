@@ -118,4 +118,24 @@ class CartController extends Controller
             ]);
         }
     }
+
+    public function updateCart(Request $request)
+    {
+        $cartItems = $request->get('cartItems');
+        $user = $request->user;
+
+        if ($user && $cartItems) {
+            Cart::moveCartItemsIntoDB($user["id"], $cartItems);
+
+            return response()->json([
+                'status' => 'success',
+                'count' => Cart::getCartItemsCount(),
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Something went wrong!',
+        ], Response::HTTP_NOT_FOUND);
+    }
 }

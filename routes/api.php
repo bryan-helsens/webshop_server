@@ -52,11 +52,10 @@ Route::group(['middleware' => ['jwtauth', 'role:costumer']], function () {
     Route::get('/address/{type}', [AddressController::class, "getShippingOrBilling"]);
     Route::put('/address/{type}/{id}', [AddressController::class, "switchShippingOrBilling"]);
 
-    Route::post('/cart', [CartController::class, 'index'])->name('index');
-
     Route::prefix('/cart')->group(function () {
         Route::post('/add/{product:id}', [CartController::class, 'add']);
         Route::post('/remove/{product:id}', [CartController::class, 'remove']);
+        Route::post('/update-cart', [CartController::class, 'updateCart']);
         Route::post('/update-quantity/{product:id}', [CartController::class, 'updateQuantity']);
     });
 });

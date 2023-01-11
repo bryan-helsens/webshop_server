@@ -3,6 +3,7 @@
 namespace App\Helper;
 
 use App\Models\CartItem;
+use Illuminate\Support\Arr;
 
 class Cart
 {
@@ -13,15 +14,9 @@ class Cart
 
         if ($user) {
             return CartItem::where('user_id', $user["id"])->sum('quantity');
-        } else {
-            $cartItems = Self::getCookieCartItems();
-
-            return array_reduce(
-                $cartItems,
-                fn ($carry, $item) => $carry + $item['quantity'],
-                0
-            );
         }
+
+        return null;
     }
 
     public static function getCartItems($user)
@@ -32,48 +27,45 @@ class Cart
             )->keyBy('product_id');
 
             return $cart !== null ? $cart : "[]";
-        } else {
-            return Self::getCookieCartItems();
         }
+
+        return null;
     }
 
-    public static function getCookieCartItems()
+    public static function moveCartItemsIntoDB($user_id, $cartItems)
     {
         $request = request();
-
-        return json_decode($request->cookies->get('cart_items', '[]'), true);
-    }
-
-    public static function getCountFromItems($cartItems)
-    {
-        return array_reduce(
-            $cartItems,
-            fn ($carry, $item) => $carry + $item['quantity'],
-            0
-        );
-    }
-
-    public static function moveCartItemsIntoDB($user_id)
-    {
-        $request = request();
-        $cartItems = Self::getCookieCartItems();
         $dbCartItems = CartItem::where(['user_id' => $user_id])->get()->keyBy('product_id');
 
         $newCartItems = [];
         foreach ($cartItems as $cartItem) {
-            if (isset($dbCartItems[$cartItem['product_id']])) {
-                continue;
+
+            if (isset($dbCartItems[$cartItem['id']]) && $cartItem['quantity'] !== $dbCartItems[$cartItem['id']]["quantity"]) {
+
+                CartItem::where(['user_id' => $user_id, 'product_id' => $cartItem["id"]])->update(['quantity' => $cartItem['quantity']]);
             }
 
-            $newCartItems[] = [
-                "user_id" => $request->user()->id,
-                "product_id" => $cartItem['product_id'],
-                "quantity" => $cartItem['quantity'],
-            ];
+            if (!isset($dbCartItems[$cartItem['id']])) {
+                $newCartItems[] = [
+                    "user_id" => $request->user()->id,
+                    "product_id" => $cartItem['id'],
+                    "quantity" => $cartItem['quantity'],
+                    "created_at" => \Carbon\Carbon::now()->toDateTimeString(),
+                    "updated_at" => \Carbon\Carbon::now()->toDateTimeString(),
+                ];
+            }
+
+            unset($dbCartItems[$cartItem['id']]);
         }
 
         if (!empty($newCartItems)) {
             CartItem::insert($newCartItems);
+        }
+
+        if (!empty($dbCartItems)) {
+            foreach ($dbCartItems as $dbItem) {
+                $dbItem->delete();
+            }
         }
     }
 }

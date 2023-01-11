@@ -29,8 +29,6 @@ class AuthController extends Controller
             'password' => bcrypt($data["password"])
         ]);
 
-        Cart::moveCartItemsIntoDb($user->id);
-
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully registered a new user.',
