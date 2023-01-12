@@ -8,7 +8,6 @@ use App\Helper\Cart;
 use App\Http\Resources\ProductCartResource;
 use App\Models\Product;
 use App\Models\CartItem;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -117,7 +116,6 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'success',
                 'count' => Cart::getCartItemsCount(),
-                'cartItems' => Cart::getCartItems($user),
             ]);
         }
     }
