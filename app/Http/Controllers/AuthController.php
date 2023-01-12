@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cookie;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Helper\Cart;
 use App\Models\User;
+use App\Models\Customer;
 
 class AuthController extends Controller
 {
@@ -28,6 +29,14 @@ class AuthController extends Controller
             'email' => $data["email"],
             'password' => bcrypt($data["password"])
         ]);
+
+
+        $customer = new Customer();
+        $names = explode(" ", $user->name);
+        $customer->user_id = $user->id;
+        $customer->first_name = $names[0];
+        $customer->last_name = $names[1] ?? '';
+        $customer->save();
 
         return response()->json([
             'status' => 'success',

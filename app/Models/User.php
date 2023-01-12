@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Customer;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -22,9 +23,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
-        'firstName',
-        'lastName',
-        'phone',
+        'is_admin'
     ];
 
     /**
@@ -64,5 +63,10 @@ class User extends Authenticatable implements JWTSubject
     public function addresses()
     {
         return $this->belongstoMany(Address::class)->withPivot('id', 'shipping_address', 'billing_address');
+    }
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class);
     }
 }

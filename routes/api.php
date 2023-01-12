@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,19 +22,8 @@ use App\Http\Controllers\CartController;
 |
 */
 
-
-// Public Routes
-Route::group([
-    'middleware' => 'api',
-    'prefix' => 'auth'
-], function ($router) {
-
-    Route::post("/register", [AuthController::class, "register"]);
-});
-
 Route::post("/login", [AuthController::class, "login"]);
-
-
+Route::post("/register", [AuthController::class, "register"]);
 
 
 Route::post("/place-order", [CheckoutController::class, "createOrder"]);
@@ -63,6 +53,11 @@ Route::group(['middleware' => ['jwtauth', 'role:costumer']], function () {
         Route::post('/remove/{product:id}', [CartController::class, 'remove']);
         Route::post('/update-cart', [CartController::class, 'updateCart']);
         Route::post('/update-quantity/{product:id}', [CartController::class, 'updateQuantity']);
+    });
+
+    Route::prefix('/profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'profile']);
+        Route::post('/', [ProfileController::class, 'store']);
     });
 });
 
