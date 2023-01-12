@@ -4,6 +4,7 @@ namespace App\Helper;
 
 use App\Models\CartItem;
 use Illuminate\Support\Arr;
+use App\Models\Product;
 
 class Cart
 {

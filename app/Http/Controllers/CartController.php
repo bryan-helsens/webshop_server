@@ -35,6 +35,7 @@ class CartController extends Controller
         $total = 0;
 
         foreach ($products as $product) {
+            $product['max_qty'] =  $product['quantity'];
             $product['quantity'] = $cartItems[$product->id]['quantity'];
             $total += (int)$product->price * $cartItems[$product->id]['quantity'];
         }
@@ -42,7 +43,7 @@ class CartController extends Controller
         return response()->json([
             'status' => 'success',
             'empty' => false,
-            'products' => $products,
+            'cartItems' => $products,
             'total' => $total
         ]);
     }
@@ -115,6 +116,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => 'success',
                 'count' => Cart::getCartItemsCount(),
+                'cartItems' => Cart::getCartItems($user),
             ]);
         }
     }
