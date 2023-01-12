@@ -59,6 +59,7 @@ Route::group(['middleware' => ['jwtauth', 'role:costumer']], function () {
     Route::put('/address/{type}/{id}', [AddressController::class, "switchShippingOrBilling"]);
 
     Route::prefix('/cart')->group(function () {
+        Route::post('/', [CartController::class, 'index']);
         Route::post('/add/{product:id}', [CartController::class, 'add']);
         Route::post('/remove/{product:id}', [CartController::class, 'remove']);
         Route::post('/update-cart', [CartController::class, 'updateCart']);

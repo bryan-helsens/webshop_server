@@ -35,13 +35,13 @@ class CartController extends Controller
         $total = 0;
 
         foreach ($products as $product) {
+            $product['quantity'] = $cartItems[$product->id]['quantity'];
             $total += (int)$product->price * $cartItems[$product->id]['quantity'];
         }
 
         return response()->json([
             'status' => 'success',
             'empty' => false,
-            'cartItems' => $cartItems,
             'products' => $products,
             'total' => $total
         ]);
