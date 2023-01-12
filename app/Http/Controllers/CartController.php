@@ -44,7 +44,7 @@ class CartController extends Controller
         return response()->json([
             'status' => 'success',
             'empty' => false,
-            'cartItems' => $products,
+            'cartItems' => ProductCartResource::collection($products),
             'total' => $total
         ]);
     }
