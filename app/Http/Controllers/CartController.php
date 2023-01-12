@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helper\Cart;
+use App\Http\Resources\ProductCartResource;
 use App\Models\Product;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Cookie;
@@ -128,16 +129,15 @@ class CartController extends Controller
 
         if ($user && $cartItems) {
             Cart::moveCartItemsIntoDB($user["id"], $cartItems);
-
-            return response()->json([
-                'status' => 'success',
-                'count' => Cart::getCartItemsCount(),
-            ]);
         }
 
+        $cartData = Cart::getCartItemsWithProduct($user);
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Something went wrong!',
-        ], Response::HTTP_NOT_FOUND);
+            'status' => 'success',
+            'empty' => false,
+            'cartItems' => ProductCartResource::collection($cartData["cartItems"]),
+            'total' => $cartData["total"],
+        ]);
     }
 }

@@ -33,6 +33,29 @@ class Cart
         return null;
     }
 
+    public static function getCartItemsWithProduct($user)
+    {
+        if ($user) {
+            $cartItems = Cart::getCartItems($user);
+
+            if (!count($cartItems)) {
+                return null;
+            }
+
+            $ids = Arr::pluck($cartItems, "product_id");
+            $products = Product::query()->whereIn('id', $ids)->get();
+            $total = 0;
+
+            foreach ($products as $product) {
+                $product['max_qty'] =  $product['quantity'];
+                $product['quantity'] = $cartItems[$product->id]['quantity'];
+                $total += (int)$product->price * $cartItems[$product->id]['quantity'];
+            }
+        }
+
+        return ['cartItems' => $products, 'total' => $total];
+    }
+
     public static function moveCartItemsIntoDB($user_id, $cartItems)
     {
         $request = request();
@@ -42,7 +65,6 @@ class Cart
         foreach ($cartItems as $cartItem) {
 
             if (isset($dbCartItems[$cartItem['id']]) && $cartItem['quantity'] !== $dbCartItems[$cartItem['id']]["quantity"]) {
-
                 CartItem::where(['user_id' => $user_id, 'product_id' => $cartItem["id"]])->update(['quantity' => $cartItem['quantity']]);
             }
 
@@ -55,18 +77,10 @@ class Cart
                     "updated_at" => \Carbon\Carbon::now()->toDateTimeString(),
                 ];
             }
-
-            unset($dbCartItems[$cartItem['id']]);
         }
 
         if (!empty($newCartItems)) {
             CartItem::insert($newCartItems);
-        }
-
-        if (!empty($dbCartItems)) {
-            foreach ($dbCartItems as $dbItem) {
-                $dbItem->delete();
-            }
         }
     }
 }
